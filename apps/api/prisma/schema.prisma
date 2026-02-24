@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Service {
+  id          String        @id @default(uuid())
+  name        String        @unique
+  description String?
+  owner       String?
+  status      String        @default("active")
+  tags        ServiceTag[]
+  endpoints   Endpoint[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model ServiceTag {
+  id        String   @id @default(uuid())
+  serviceId String
+  value     String
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([serviceId, value])
+  @@index([value])
+}
+
+model Endpoint {
+  id        String     @id @default(uuid())
+  serviceId String
+  method    String
+  path      String
+  version   String
+  slaMs     Int
+  authType  String
+  service   Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([serviceId])
+}
