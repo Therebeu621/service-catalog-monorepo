@@ -136,6 +136,11 @@ Note: le workspace `web` ne contient pas encore de tests automatisés, donc `npm
 docker compose up --build
 ```
 
+Si ta machine utilise l'ancien binaire Compose v1:
+```bash
+docker-compose up --build
+```
+
 Services:
 
 - Web: `http://localhost:5173`
