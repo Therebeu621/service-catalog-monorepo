@@ -189,16 +189,9 @@ npm run dev
 5. Aller dans `Dashboard` et vérifier les KPI.
 6. Ouvrir `http://localhost:3001/api/docs` pour tester l'API via Swagger.
 
-## Checklist validation
+## Related Projects
 
-- [ ] `npm run lint` passe
-- [ ] `npm run build` passe
-- [ ] `npm run test` passe
-- [ ] `GET /api/health` retourne `status: ok`
-- [ ] CRUD services OK
-- [ ] CRUD endpoints OK
-- [ ] Filtres/search/pagination services OK
-- [ ] Dashboard KPI OK
-- [ ] Guard `/app` redirige vers `/login` sans token
-- [ ] États UX visibles: loading / empty / erreur / toasts
-- [ ] `docker compose up --build` démarre API + Web
+- Service Dashboard Microfrontends (React + Webpack Module Federation + NestJS):
+  https://github.com/Therebeu621/service-dashboard-microfrontends
+
+
