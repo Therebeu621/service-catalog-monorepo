@@ -93,6 +93,13 @@ export class ServicesService {
       where.OR = [
         { name: { contains: query.search } },
         { description: { contains: query.search } },
+        {
+          tags: {
+            some: {
+              value: { contains: query.search },
+            },
+          },
+        },
       ];
     }
 
@@ -103,7 +110,9 @@ export class ServicesService {
     if (query.tag) {
       where.tags = {
         some: {
-          value: query.tag,
+          value: {
+            contains: query.tag,
+          },
         },
       };
     }

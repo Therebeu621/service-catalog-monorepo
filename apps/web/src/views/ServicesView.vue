@@ -6,7 +6,7 @@
     </header>
 
     <div class="toolbar">
-      <input v-model="search" type="text" placeholder="Search name or description" @keyup.enter="applyFilters" />
+      <input v-model="search" type="text" placeholder="Search name, description or tag" />
 
       <select v-model="status" @change="applyFilters">
         <option value="">All statuses</option>
@@ -15,7 +15,7 @@
         <option value="deprecated">deprecated</option>
       </select>
 
-      <input v-model="tag" type="text" placeholder="Filter by tag" @keyup.enter="applyFilters" />
+      <input v-model="tag" type="text" placeholder="Filter by tag" />
 
       <select v-model="sortBy" @change="applyFilters">
         <option value="createdAt">Sort: createdAt</option>
@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import ServiceFormModal from '../components/ServiceFormModal.vue';
 import { ApiError, api } from '../services/api';
@@ -115,6 +115,8 @@ const meta = ref({ page: 1, limit: 10, total: 0, totalPages: 1 });
 const showModal = ref(false);
 const modalMode = ref<'create' | 'edit'>('create');
 const selectedService = ref<ServiceDetail | null>(null);
+let filterDebounce: ReturnType<typeof setTimeout> | null = null;
+let skipAutoFilter = false;
 
 const selectedServiceId = computed(() => selectedService.value?.id ?? null);
 
@@ -153,17 +155,36 @@ async function fetchServices() {
 }
 
 function applyFilters() {
+  if (filterDebounce) {
+    clearTimeout(filterDebounce);
+    filterDebounce = null;
+  }
   page.value = 1;
   fetchServices();
 }
 
+function debouncedApplyFilters() {
+  page.value = 1;
+
+  if (filterDebounce) {
+    clearTimeout(filterDebounce);
+  }
+
+  filterDebounce = setTimeout(() => {
+    fetchServices();
+    filterDebounce = null;
+  }, 250);
+}
+
 function resetFilters() {
+  skipAutoFilter = true;
   search.value = '';
   status.value = '';
   tag.value = '';
   sortBy.value = 'createdAt';
   sortOrder.value = 'desc';
   applyFilters();
+  skipAutoFilter = false;
 }
 
 function prevPage() {
@@ -243,4 +264,18 @@ async function deleteService(id: string) {
 }
 
 onMounted(fetchServices);
+
+watch([search, tag], () => {
+  if (skipAutoFilter) {
+    return;
+  }
+
+  debouncedApplyFilters();
+});
+
+onBeforeUnmount(() => {
+  if (filterDebounce) {
+    clearTimeout(filterDebounce);
+  }
+});
 </script>
